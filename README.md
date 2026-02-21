@@ -133,9 +133,10 @@ python3 workspace-manager.py sync --auto-fix
 ```
 
 ### Trabajos en Background (Crontab/Linux-Mac)
-Puedes desentenderte y decirle a un orquestador cron que evalúe y ejecute actualizaciones cada domingo de madugada:
+Gracias a que el script auto-detecta rutas e independencias de dónde es invocado, puedes automatizar cronjobs pasándole la ruta absoluta directamente (sin necesidad del clásico `cd` previo). Por ejemplo, actualizaciones automáticas cada domingo de madrugada:
+
 ```bash
-0 2 * * 0 cd /ruta/generica/a/la/carpeta/del/manager && python3 workspace-manager.py sync --auto-fix
+0 2 * * 0 python3 /ruta/real/a/tu/antigravity-workspace-manager/workspace-manager.py sync --auto-fix
 ```
 
 ---
