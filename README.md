@@ -3,6 +3,8 @@
 [![GitHub stars](https://img.shields.io/github/stars/sickn33/antigravity-awesome-skills?style=social&label=Skills%20Repo%20Stars)](https://github.com/sickn33/antigravity-awesome-skills)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+*Read this in other languages: [Español](README.md), [English](README-en.md)*
+
 > **⚡ The ultimate companion CLI for the viral [`antigravity-awesome-skills`](https://github.com/sickn33/antigravity-awesome-skills) library.**
 
 Sistema de gestión completo para estructurar tus proyectos (workspaces) e inyectar *skills* dinámicamente usando el famoso repositorio de [antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills). Mientras que el repositorio original provee el conocimiento especializado (+250 skills), este gestor aporta la orquestación para que tus asistentes de IA (Antigravity, Claude Code, Cursor) carguen exclusivamente el contexto necesario en cada proyecto.
