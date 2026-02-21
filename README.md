@@ -9,6 +9,8 @@
 
 A complete management system to structure your projects (workspaces) and dynamically inject *skills* using the famous [antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills) repository. While the original repository provides specialized knowledge (+250 skills), this manager brings the orchestration needed for your AI assistants (Antigravity, Claude Code, Cursor) to load exclusively the necessary context into each project.
 
+![Workspace Manager Demo](demo-en.gif)
+
 ---
 
 ## ✨ Key Features
