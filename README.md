@@ -26,13 +26,18 @@ Sistema de gestión completo para estructurar tus proyectos (workspaces) e inyec
 Asegúrate de contar con Python 3 y Git en tu entorno de trabajo.
 
 ```bash
-# 1. Copia o clona el script principal "workspace-manager.py" en la raíz o subdirectorio deseado
-# 2. Haz el script ejecutable (ejemplo en macOS o bash de Linux)
+# 1. Clona el repositorio en tu máquina local
+git clone https://github.com/amartelr/antigravity-workspace-manager.git
+cd antigravity-workspace-manager
+
+# 2. (Opcional) Haz el script ejecutable en macOS/Linux
 chmod +x workspace-manager.py
 
 # 3. Inicializa la estructura de directorios y descarga los skills
 python3 workspace-manager.py init
 ```
+
+> 💡 **Tip de portabilidad:** Puedes mover la carpeta clonada a donde prefieras (por ejemplo, `~/MisProyectos`), el script autodetectará su nueva ubicación sin romper tus rutas.
 
 ### 2. Crear tu Primer Workspace (Modo Asistido)
 
