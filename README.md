@@ -1,6 +1,11 @@
-# 🚀 Workspace Manager para Antigravity Skills
+# 🚀 Antigravity Workspace Manager
 
-Sistema de gestión completo para estructurar tus proyectos (workspaces) e inyectar *skills* dinámicamente usando el repositorio de [antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills). Este gestor simplifica la creación de entornos, controlando qué habilidades (skills) estarán dispuestas y activas para tus asistentes o agentes de Inteligencia Artificial (IA) en cada tarea de código concreta.
+[![GitHub stars](https://img.shields.io/github/stars/sickn33/antigravity-awesome-skills?style=social&label=Skills%20Repo%20Stars)](https://github.com/sickn33/antigravity-awesome-skills)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+> **⚡ The ultimate companion CLI for the viral [`antigravity-awesome-skills`](https://github.com/sickn33/antigravity-awesome-skills) library.**
+
+Sistema de gestión completo para estructurar tus proyectos (workspaces) e inyectar *skills* dinámicamente usando el famoso repositorio de [antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills). Mientras que el repositorio original provee el conocimiento especializado (+250 skills), este gestor aporta la orquestación para que tus asistentes de IA (Antigravity, Claude Code, Cursor) carguen exclusivamente el contexto necesario en cada proyecto.
 
 ---
 
