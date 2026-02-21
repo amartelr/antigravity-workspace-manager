@@ -3,154 +3,154 @@
 [![GitHub stars](https://img.shields.io/github/stars/sickn33/antigravity-awesome-skills?style=social&label=Skills%20Repo%20Stars)](https://github.com/sickn33/antigravity-awesome-skills)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-*Read this in other languages: [Español](README.md), [English](README-en.md)*
+*Read this in other languages: [English](README.md), [Español](README-es.md)*
 
 > **⚡ The ultimate companion CLI for the viral [`antigravity-awesome-skills`](https://github.com/sickn33/antigravity-awesome-skills) library.**
 
-Sistema de gestión completo para estructurar tus proyectos (workspaces) e inyectar *skills* dinámicamente usando el famoso repositorio de [antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills). Mientras que el repositorio original provee el conocimiento especializado (+250 skills), este gestor aporta la orquestación para que tus asistentes de IA (Antigravity, Claude Code, Cursor) carguen exclusivamente el contexto necesario en cada proyecto.
+A complete management system to structure your projects (workspaces) and dynamically inject *skills* using the famous [antigravity-awesome-skills](https://github.com/sickn33/antigravity-awesome-skills) repository. While the original repository provides specialized knowledge (+250 skills), this manager brings the orchestration needed for your AI assistants (Antigravity, Claude Code, Cursor) to load exclusively the necessary context into each project.
 
 ---
 
-## ✨ Características Principales
+## ✨ Key Features
 
-* **Ubicación Dinámica**: Detección inteligente de la ruta base del proyecto, permitiendo que invoques el script desde cualquier sub-directorio de tu entorno.
-* **Asistente Inteligente (Wizard)**: Interfaz de terminal de pasos rápidos para crear workspaces y auto-habilitar los *skills* recomendados de acuerdo a tu stack tecnológico.
-* **Aislamiento de Entornos**: Cada proyecto (workspace) mantiene su propia lista de configuración `skill-config.json` y un entorno simbólico (symlink) que enruta solamente a los skills designados.
-* **Sincronización Transparente**: Sistema integrado para sincronizar (clonar/actualizar) la carpeta global desde el repositorio oficial de GitHub de manera segura con creación de backups.
-* **Reparación Automática**: Detección y limpieza de skills huérfanos o rotos si dejasen de existir en las dependencias padre.
+* **Dynamic Location**: Intelligent detection of the base project path, allowing you to invoke the script from any subdirectory within your environment.
+* **Smart Wizard**: A step-by-step terminal interface to easily create workspaces and auto-enable recommended *skills* tailored to your tech stack.
+* **Environment Isolation**: Each project (workspace) maintains its own `skill-config.json` configuration file and a symbolic link (symlink) environment routing only to the designated skills.
+* **Transparent Synchronization**: Integrated system to safely sync (clone/update) the global folder from the official GitHub repository, including automatic backups.
+* **Auto-Repair**: Detection and cleanup of orphaned or broken skills in case they are removed from the parent repository.
 
 ---
 
-## 🚀 Inicio Rápido
+## 🚀 Quick Start
 
-### 1. Instalación (Primera vez)
+### 1. Installation (First Time)
 
-Asegúrate de contar con Python 3 y Git en tu entorno de trabajo.
+Ensure you have Python 3 and Git installed on your system.
 
 ```bash
-# 1. Clona el repositorio en tu máquina local
+# 1. Clone the repository to your local machine
 git clone https://github.com/amartelr/antigravity-workspace-manager.git
 cd antigravity-workspace-manager
 
-# 2. (Opcional) Haz el script ejecutable en macOS/Linux
+# 2. (Optional) Make the script executable on macOS/Linux
 chmod +x workspace-manager.py
 
-# 3. Inicializa la estructura de directorios y descarga los skills
+# 3. Initialize the directory structure and download the skills
 python3 workspace-manager.py init
 ```
 
-> 💡 **Tip de portabilidad:** Puedes mover la carpeta clonada a donde prefieras (por ejemplo, `~/MisProyectos`), el script autodetectará su nueva ubicación sin romper tus rutas.
+> 💡 **Portability Tip:** You can move the cloned folder wherever you prefer (e.g., `~/MyProjects`). The script will auto-detect its new location without breaking your paths.
 
-### 2. Crear tu Primer Workspace (Modo Asistido)
+### 2. Create Your First Workspace (Assisted Mode)
 
-El flujo más recomendado es utilizar el asistente interactivo:
+The highly recommended workflow is to use the interactive wizard:
 
 ```bash
 python3 workspace-manager.py wizard
 ```
 
-El wizard te guiará para definir:
-1. El **nombre** y una **descripción** de contexto breve.
-2. El **tipo de proyecto** (API Backend, Web Frontend, Full-Stack, Mobile App).
-3. El **lenguaje principal** (Python, Go, JS/TS, Dart/Flutter).
-4. La **base de datos** (PostgreSQL, MongoDB, Supabase, Google Sheets).
+The wizard will guide you to define:
+1. The **name** and a brief context **description**.
+2. The **project type** (API Backend, Web Frontend, Full-Stack, Mobile App).
+3. The **primary language** (Python, Go, JS/TS, Dart/Flutter).
+4. The **database** (PostgreSQL, MongoDB, Supabase, Google Sheets).
 
 ---
 
-## 🛠️ Comandos Esenciales
+## 🛠️ Essential Commands
 
-| Acción | Comando |
+| Action | Command |
 | :--- | :--- |
-| **Inicializar Estructura** | `python3 workspace-manager.py init` |
-| **Darse Alta por Asistente** | `python3 workspace-manager.py wizard` |
-| **Crear Manualmente** | `python3 workspace-manager.py create nombre-proyecto` |
-| **Ver Workspaces Activos** | `python3 workspace-manager.py list` |
-| **Ver Todo el Catálogo de Skills** | `python3 workspace-manager.py list-skills` |
-| **Ver Skills de un Proyecto** | `python3 workspace-manager.py list-skills nombre-proyecto` |
-| **Habilitar Skill** | `python3 workspace-manager.py enable nombre-proyecto nombre-skill` |
-| **Deshabilitar Skill** | `python3 workspace-manager.py disable nombre-proyecto nombre-skill` |
-| **Sincronizar y Reparar Skills** | `python3 workspace-manager.py sync --auto-fix` |
+| **Initialize Structure** | `python3 workspace-manager.py init` |
+| **Assisted Setup** | `python3 workspace-manager.py wizard` |
+| **Manual Creation** | `python3 workspace-manager.py create project-name` |
+| **View Active Workspaces** | `python3 workspace-manager.py list` |
+| **View Full Skills Catalog**| `python3 workspace-manager.py list-skills` |
+| **View Project Skills** | `python3 workspace-manager.py list-skills project-name` |
+| **Enable Skill** | `python3 workspace-manager.py enable project-name skill-name` |
+| **Disable Skill** | `python3 workspace-manager.py disable project-name skill-name` |
+| **Sync and Repair Skills** | `python3 workspace-manager.py sync --auto-fix` |
 
 ---
 
-## 📂 Organización de la Estructura Generada
+## 📂 Generated Structure Organization
 
-Tras llamar al comando `init`, el script autodesplegará una jerarquía robusta para tu orquestación:
+After executing the `init` command, the script will automatically deploy a robust hierarchy for your orchestration:
 
 ```text
-/ruta-base-de-tu-manager/
-├── workspace-manager.py          ← Entorno de la CLI
+/your-manager-base-path/
+├── workspace-manager.py          ← CLI Environment
 ├── .agent/
-│   ├── skills/                   ← Todo el repositorio de skills 
-│   │   ├── public/               ← Skills oficiales clonados del remote public
-│   │   ├── private/              ← Tus skills o directrices empresariales
-│   │   └── user/                 ← Skills desarrollados de forma local
-│   └── skills_backup/            ← Copias de seguridad periódicas del gestor
-├── workspaces/                   ← Directorio contenedor de tus carpetas de trabajo
-│   ├── mi-proyecto/
+│   ├── skills/                   ← The entire skills repository
+│   │   ├── public/               ← Official skills cloned from the public remote
+│   │   ├── private/              ← Your private skills or enterprise guidelines
+│   │   └── user/                 ← Locally developed skills
+│   └── skills_backup/            ← Periodic manager backups
+├── workspaces/                   ← Container directory for your working folders
+│   ├── my-project/
 │   │   ├── .agent/
-│   │   │   └── skills            ← Enlace estático (symlink) a la biblioteca principal
-│   │   ├── skill-config.json     ← Declaración explícita de tus dependencias necesarias
-│   │   └── README.md             ← Documento basal propio auto-generado
-├── skill-config-templates/       ← Plantillas y colecciones default pre-empaquetadas
+│   │   │   └── skills            ← Static link (symlink) to the main library
+│   │   ├── skill-config.json     ← Explicit declaration of your necessary dependencies
+│   │   └── README.md             ← Auto-generated foundational document
+├── skill-config-templates/       ← Pre-packaged default templates and collections
 ```
 
 ---
 
-## 💡 Alternativa a la Interfaz: Plantillas (Templates)
+## 💡 Interface Alternative: Templates
 
-Si prefieres obviar la interfaz guiada (Wizard), puedes valerte de los *bundles* para acelerar el *scaffolding*:
+If you prefer to bypass the guided interface (Wizard), you can speed up scaffolding by relying on *bundles*:
 
 ```bash
-# Inyectará en conjunto todos los skills relativos al área frontend
-python3 workspace-manager.py create mi-webapp -t frontend-bundle
+# Will collectively inject all skills related to the frontend area
+python3 workspace-manager.py create my-webapp -t frontend-bundle
 ```
 
-Ejemplos de plantillas disponibles por defecto:
+Examples of default available templates:
 * **frontend-bundle**: UI/UX design components, react/tailwind patterns, frontend testing.
-* **backend-bundle**: clean code, api guidelines y patrones transaccionales.
+* **backend-bundle**: clean code, api guidelines, and transactional patterns.
 * **mobile-bundle**: flutter best practices, mobile security.
 
 ---
 
-## 🤖 Uso Directo con tu Agente (Prompting Inteligente)
+## 🤖 Direct Usage with your Agent (Smart Prompting)
 
-Una vez tu *workspace* es creado, se auto-suministrará un fichero `README.md` base dentro de la carpeta local. Ese fichero incluye un extracto pensado para dárselo en contexto al Asistente IA respectivo:
+Once your *workspace* is created, a base `README.md` file will automatically populate within the local folder. This file includes an excerpt specifically designed to pass context to your respective AI Assistant:
 
 ```text
-Workspace: [nombre-del-proyecto]
-Recoge la lógica de skills descrita leyendo de la ruta de contexto local ./skill-config.json
-Confirma qué librerías exactas tienes ahora bajo contexto.
+Workspace: [project-name]
+Collect the described skills logic reading from the local context path ./skill-config.json
+Confirm the exact libraries you now have under context.
 ```
 
 ---
 
-## 🔧 Actualización / Mantenimiento Programado
+## 🔧 Scheduled Update / Maintenance
 
-Considera como un hábito refrescar los paquetes que forman tu catálogo de *skills* ejecutando sincrónicos periódicos.
+Consider making it a habit to refresh the packages comprising your *skills* catalog by running periodic syncs.
 
 ```bash
-# Clona, verifica diff de versiones, borra anticuados y actualiza referencias de un golpe
+# Clone, verify version diffs, delete outdated ones, and update references in one go
 python3 workspace-manager.py sync --auto-fix
 ```
 
-### Trabajos en Background (Crontab/Linux-Mac)
-Gracias a que el script auto-detecta rutas e independencias de dónde es invocado, puedes automatizar cronjobs pasándole la ruta absoluta directamente (sin necesidad del clásico `cd` previo). Por ejemplo, actualizaciones automáticas cada domingo de madrugada:
+### Background Jobs (Crontab/Linux-Mac)
+Thanks to the script auto-detecting paths independently of where it's invoked, you can automate cronjobs by passing the absolute path directly (no need for the classic preceding `cd`). For instance, automatic updates every Sunday at dawn:
 
 ```bash
-0 2 * * 0 python3 /ruta/real/a/tu/antigravity-workspace-manager/workspace-manager.py sync --auto-fix
+0 2 * * 0 python3 /real/path/to/your/antigravity-workspace-manager/workspace-manager.py sync --auto-fix
 ```
 
 ---
 
-## ⚠️ Resolución Frecuente (Troubleshooting)
+## ⚠️ Troubleshooting
 
-* **Problemas con Symlinks (Especialmente en Windows):**
-  A menudo la consola requiere privilegios amplios para manejar mapeos de directorio profundos.
-  > Resuélvelo activando el modo de compatibilidad **Modo Desarrollador**, y abre tu terminal o de comandos con **Permisos de Administrador**. WSL (Windows Subsystem for Linux) también evita el problema al 100%.
-* **Rechazos Ejecutando Comando Listados o Command not found:**
-  La envoltura del path python debe ser local. Ejecuta `python3 workspace-manager.py ...` (y recuerda el `chmod +x` si prefieres invocarlo crudo).
+* **Symlink Issues (Especially on Windows):**
+  Console often requires extended privileges to handle deep directory mappings.
+  > Resolve it by enabling the compatibility **Developer Mode**, and opening your command terminal with **Administrator Privileges**. WSL (Windows Subsystem for Linux) also prevents this issue 100%.
+* **Rejections Executing Listed Commands or Command not found:**
+  The python path wrapping must be local. Execute `python3 workspace-manager.py ...` (and remember the `chmod +x` if you prefer invoking it raw).
 
 ---
 
-*Desarrolla más rápido, y dota a tu IA del contexto universal exacto.* 🚀
+*Develop faster, and endow your AI with the exact universal context.* 🚀
