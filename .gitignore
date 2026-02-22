@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv
+venv/
+ENV/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+workspaces/
+.agent/temp_clone
+.agent/temp_sync
+demo.cast
+demo-en.cast
+record_demo.py
+record_demo_en.py
+workspace-manager-en.py
+demo.tape
+backup_skills/
