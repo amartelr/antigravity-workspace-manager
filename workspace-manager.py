@@ -186,8 +186,12 @@ class WorkspaceManager:
 ## Skills
 
 ```bash
+# Using the wsm alias (recommended):
+wsm list-skills {name}
+wsm enable {name} skill-name
+
+# Or using the direct path:
 python3 {script_rel} list-skills {name}
-python3 {script_rel} enable {name} skill-name
 ```
 
 ## Prompt Antigravity

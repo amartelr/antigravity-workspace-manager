@@ -55,7 +55,7 @@ python3 workspace-manager.py init
 El flujo más recomendado es utilizar el asistente interactivo:
 
 ```bash
-python3 workspace-manager.py wizard
+wsm wizard
 ```
 
 El wizard te guiará para definir:
@@ -70,15 +70,15 @@ El wizard te guiará para definir:
 
 | Acción | Comando |
 | :--- | :--- |
-| **Inicializar Estructura** | `python3 workspace-manager.py init` |
-| **Darse Alta por Asistente** | `python3 workspace-manager.py wizard` |
-| **Crear Manualmente** | `python3 workspace-manager.py create nombre-proyecto` |
-| **Ver Workspaces Activos** | `python3 workspace-manager.py list` |
-| **Ver Todo el Catálogo de Skills** | `python3 workspace-manager.py list-skills` |
-| **Ver Skills de un Proyecto** | `python3 workspace-manager.py list-skills nombre-proyecto` |
-| **Habilitar Skill** | `python3 workspace-manager.py enable nombre-proyecto nombre-skill` |
-| **Deshabilitar Skill** | `python3 workspace-manager.py disable nombre-proyecto nombre-skill` |
-| **Sincronizar y Reparar Skills** | `python3 workspace-manager.py sync --auto-fix` |
+| **Inicializar Estructura** | `wsm init` |
+| **Darse Alta por Asistente** | `wsm wizard` |
+| **Crear Manualmente** | `wsm create nombre-proyecto` |
+| **Ver Workspaces Activos** | `wsm list` |
+| **Ver Todo el Catálogo de Skills** | `wsm list-skills` |
+| **Ver Skills de un Proyecto** | `wsm list-skills nombre-proyecto` |
+| **Habilitar Skill** | `wsm enable nombre-proyecto nombre-skill` |
+| **Deshabilitar Skill** | `wsm disable nombre-proyecto nombre-skill` |
+| **Sincronizar y Reparar Skills** | `wsm sync --auto-fix` |
 
 ---
 
@@ -112,7 +112,7 @@ Si prefieres obviar la interfaz guiada (Wizard), puedes valerte de los *bundles*
 
 ```bash
 # Inyectará en conjunto todos los skills relativos al área frontend
-python3 workspace-manager.py create mi-webapp -t frontend-bundle
+wsm create mi-webapp -t frontend-bundle
 ```
 
 Ejemplos de plantillas disponibles por defecto:
@@ -140,7 +140,7 @@ Considera como un hábito refrescar los paquetes que forman tu catálogo de *ski
 
 ```bash
 # Clona, verifica diff de versiones, borra anticuados y actualiza referencias de un golpe
-python3 workspace-manager.py sync --auto-fix
+wsm sync --auto-fix
 ```
 
 ### Trabajos en Background (Crontab/Linux-Mac)

@@ -55,7 +55,7 @@ python3 workspace-manager.py init
 The highly recommended workflow is to use the interactive wizard:
 
 ```bash
-python3 workspace-manager.py wizard
+wsm wizard
 ```
 
 The wizard will guide you to define:
@@ -70,15 +70,15 @@ The wizard will guide you to define:
 
 | Action | Command |
 | :--- | :--- |
-| **Initialize Structure** | `python3 workspace-manager.py init` |
-| **Assisted Setup** | `python3 workspace-manager.py wizard` |
-| **Manual Creation** | `python3 workspace-manager.py create project-name` |
-| **View Active Workspaces** | `python3 workspace-manager.py list` |
-| **View Full Skills Catalog**| `python3 workspace-manager.py list-skills` |
-| **View Project Skills** | `python3 workspace-manager.py list-skills project-name` |
-| **Enable Skill** | `python3 workspace-manager.py enable project-name skill-name` |
-| **Disable Skill** | `python3 workspace-manager.py disable project-name skill-name` |
-| **Sync and Repair Skills** | `python3 workspace-manager.py sync --auto-fix` |
+| **Initialize Structure** | `wsm init` |
+| **Assisted Setup** | `wsm wizard` |
+| **Manual Creation** | `wsm create project-name` |
+| **View Active Workspaces** | `wsm list` |
+| **View Full Skills Catalog**| `wsm list-skills` |
+| **View Project Skills** | `wsm list-skills project-name` |
+| **Enable Skill** | `wsm enable project-name skill-name` |
+| **Disable Skill** | `wsm disable project-name skill-name` |
+| **Sync and Repair Skills** | `wsm sync --auto-fix` |
 
 ---
 
@@ -112,7 +112,7 @@ If you prefer to bypass the guided interface (Wizard), you can speed up scaffold
 
 ```bash
 # Will collectively inject all skills related to the frontend area
-python3 workspace-manager.py create my-webapp -t frontend-bundle
+wsm create my-webapp -t frontend-bundle
 ```
 
 Examples of default available templates:
@@ -140,7 +140,7 @@ Consider making it a habit to refresh the packages comprising your *skills* cata
 
 ```bash
 # Clone, verify version diffs, delete outdated ones, and update references in one go
-python3 workspace-manager.py sync --auto-fix
+wsm sync --auto-fix
 ```
 
 ### Background Jobs (Crontab/Linux-Mac)
