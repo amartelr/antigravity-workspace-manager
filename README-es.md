@@ -25,23 +25,30 @@ Sistema de gestión completo para estructurar tus proyectos (workspaces) e inyec
 
 ## 🚀 Inicio Rápido
 
-### 1. Instalación (Primera vez)
+### 1. Instalación (Recomendado)
 
-Asegúrate de contar con Python 3 y Git en tu entorno de trabajo.
+Obtén el alias `wsm` e inicializa todo con un solo comando:
 
 ```bash
-# 1. Clona el repositorio en tu máquina local
+curl -sSL https://raw.githubusercontent.com/amartelr/antigravity-workspace-manager/main/install.sh | bash
+```
+
+*Reinicia tu terminal tras la instalación para activar el comando `wsm`.*
+
+### 2. Instalación Manual (Alternativa)
+
+Si prefieres hacerlo paso a paso:
+
+```bash
+# 1. Clona el repositorio
 git clone https://github.com/amartelr/antigravity-workspace-manager.git
 cd antigravity-workspace-manager
 
-# 2. (Opcional) Haz el script ejecutable en macOS/Linux
-chmod +x workspace-manager.py
-
-# 3. Inicializa la estructura de directorios y descarga los skills
+# 2. Inicializa
 python3 workspace-manager.py init
 ```
 
-> 💡 **Tip de portabilidad:** Puedes mover la carpeta clonada a donde prefieras (por ejemplo, `~/MisProyectos`), el script autodetectará su nueva ubicación sin romper tus rutas.
+> 💡 **Tip de portabilidad:** Puedes mover la carpeta clonada a donde prefieras (ej. `~/MisProyectos`), el script autodetectará su nueva ubicación.
 
 ### 2. Crear tu Primer Workspace (Modo Asistido)
 
