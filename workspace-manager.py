@@ -364,7 +364,7 @@ Confirma qué tienes activo.
                     self.disable_skill(ws, s)
     
     def run_wizard(self):
-        """Wizard interactivo"""
+        """Wizard interactivo mejorado"""
         os.system('clear' if os.name != 'nt' else 'cls')
         print(f"{Colors.CYAN}{Colors.BOLD}{'═'*70}")
         print("  🧙‍♂️ WORKSPACE WIZARD")
@@ -372,83 +372,322 @@ Confirma qué tienes activo.
         
         ans = {}
         skills = set()
+        selected_type = None
+        selected_lang = None
+        selected_db = None
         
-        ans['name'] = input(f"{Colors.YELLOW}Nombre: {Colors.ENDC}").strip()
+        # ── Paso 1: Nombre ──
+        ans['name'] = input(f"{Colors.YELLOW}📝 Nombre: {Colors.ENDC}").strip()
         if not ans['name']:
-            print(f"{Colors.RED}Requerido{Colors.ENDC}")
+            print(f"{Colors.RED}❌ Requerido{Colors.ENDC}")
             return
         
-        ans['desc'] = input(f"{Colors.YELLOW}Descripción: {Colors.ENDC}").strip()
+        ans['desc'] = input(f"{Colors.YELLOW}📄 Descripción: {Colors.ENDC}").strip()
         
-        print(f"\n{Colors.BOLD}Tipo:{Colors.ENDC}")
+        # ── Paso 2: Tipo de Proyecto ──
+        print(f"\n{Colors.BOLD}{'─'*50}")
+        print(f"  📦 Tipo de Proyecto")
+        print(f"{'─'*50}{Colors.ENDC}")
         types = list(self.skill_database['project_types'].keys())
         for i, t in enumerate(types, 1):
-            print(f"  {i}. {t}")
+            print(f"  {Colors.CYAN}{i:2}.{Colors.ENDC} {t}")
         try:
-            choice = int(input(f"{Colors.YELLOW}→ {Colors.ENDC}"))
+            choice = int(input(f"\n{Colors.YELLOW}  → {Colors.ENDC}"))
             if 1 <= choice <= len(types):
-                skills.update(self.skill_database['project_types'][types[choice-1]])
+                selected_type = types[choice-1]
+                skills.update(self.skill_database['project_types'][selected_type])
+                print(f"  {Colors.GREEN}✓ {selected_type}{Colors.ENDC}")
         except:
             pass
         
-        print(f"\n{Colors.BOLD}Lenguaje:{Colors.ENDC}")
+        # ── Paso 3: Lenguaje ──
+        print(f"\n{Colors.BOLD}{'─'*50}")
+        print(f"  💻 Lenguaje de Programación")
+        print(f"{'─'*50}{Colors.ENDC}")
         langs = list(self.skill_database['languages'].keys())
         for i, l in enumerate(langs, 1):
-            print(f"  {i}. {l}")
+            print(f"  {Colors.CYAN}{i:2}.{Colors.ENDC} {l}")
         try:
-            choice = int(input(f"{Colors.YELLOW}→ {Colors.ENDC}"))
+            choice = int(input(f"\n{Colors.YELLOW}  → {Colors.ENDC}"))
             if 1 <= choice <= len(langs):
-                skills.update(self.skill_database['languages'][langs[choice-1]])
+                selected_lang = langs[choice-1]
+                skills.update(self.skill_database['languages'][selected_lang])
+                print(f"  {Colors.GREEN}✓ {selected_lang}{Colors.ENDC}")
         except:
             pass
         
-        print(f"\n{Colors.BOLD}Database:{Colors.ENDC}")
+        # ── Paso 4: Base de Datos ──
+        print(f"\n{Colors.BOLD}{'─'*50}")
+        print(f"  🗄️  Base de Datos")
+        print(f"{'─'*50}{Colors.ENDC}")
         dbs = list(self.skill_database['databases'].keys())
         for i, d in enumerate(dbs, 1):
-            print(f"  {i}. {d}")
-        print("  0. Ninguna")
+            print(f"  {Colors.CYAN}{i:2}.{Colors.ENDC} {d}")
+        print(f"  {Colors.CYAN} 0.{Colors.ENDC} Ninguna")
         try:
-            choice = int(input(f"{Colors.YELLOW}→ {Colors.ENDC}"))
+            choice = int(input(f"\n{Colors.YELLOW}  → {Colors.ENDC}"))
             if 1 <= choice <= len(dbs):
-                skills.update(self.skill_database['databases'][dbs[choice-1]])
+                selected_db = dbs[choice-1]
+                skills.update(self.skill_database['databases'][selected_db])
+                print(f"  {Colors.GREEN}✓ {selected_db}{Colors.ENDC}")
         except:
             pass
         
+        # ── Paso 5: Skills Adicionales (multi-select) ──
+        print(f"\n{Colors.BOLD}{'─'*50}")
+        print(f"  🧩 Skills Adicionales (selección múltiple)")
+        print(f"{'─'*50}{Colors.ENDC}")
+        
+        # Build suggested skills based on previous selections
+        suggested = self._get_suggested_skills(selected_type, selected_lang, selected_db)
+        
+        # Remove skills already selected
+        suggested = {cat: [s for s in slist if s not in skills] 
+                     for cat, slist in suggested.items()}
+        suggested = {cat: slist for cat, slist in suggested.items() if slist}
+        
+        if suggested:
+            print(f"  {Colors.CYAN}Basado en tu selección, te pueden ser útiles:{Colors.ENDC}\n")
+            
+            # Flatten all suggested skills into a numbered list
+            flat_skills = []
+            for cat, slist in suggested.items():
+                print(f"  {Colors.BOLD}▸ {cat}:{Colors.ENDC}")
+                for s in slist:
+                    flat_skills.append(s)
+                    print(f"    {Colors.CYAN}{len(flat_skills):2}.{Colors.ENDC} {s}")
+                print()
+            
+            print(f"  {Colors.YELLOW}Introduce los números separados por coma (ej: 1,3,5)")
+            print(f"  o 'all' para todos, Enter para ninguno{Colors.ENDC}")
+            
+            try:
+                sel = input(f"\n{Colors.YELLOW}  → {Colors.ENDC}").strip()
+                if sel.lower() == 'all':
+                    skills.update(flat_skills)
+                    print(f"  {Colors.GREEN}✓ Todos los skills añadidos ({len(flat_skills)}){Colors.ENDC}")
+                elif sel:
+                    indices = [int(x.strip()) for x in sel.split(',') if x.strip()]
+                    added = 0
+                    for idx in indices:
+                        if 1 <= idx <= len(flat_skills):
+                            skills.add(flat_skills[idx-1])
+                            added += 1
+                    print(f"  {Colors.GREEN}✓ {added} skills añadidos{Colors.ENDC}")
+            except:
+                pass
+        else:
+            print(f"  {Colors.CYAN}No hay sugerencias adicionales{Colors.ENDC}")
+        
+        # Add essential skills
         skills.update(self.skill_database['essential'])
         
-        print(f"\n{Colors.BOLD}Skills ({len(skills)}):{Colors.ENDC}\n")
-        for s in sorted(skills):
-            print(f"  {Colors.GREEN}✓{Colors.ENDC} {s}")
+        # ── Resumen Final ──
+        print(f"\n{Colors.BOLD}{'═'*70}")
+        print(f"  📋 RESUMEN")
+        print(f"{'═'*70}{Colors.ENDC}\n")
+        print(f"  {Colors.BOLD}Nombre:{Colors.ENDC}      {ans['name']}")
+        if ans.get('desc'):
+            print(f"  {Colors.BOLD}Descripción:{Colors.ENDC} {ans['desc']}")
+        if selected_type:
+            print(f"  {Colors.BOLD}Tipo:{Colors.ENDC}        {selected_type}")
+        if selected_lang:
+            print(f"  {Colors.BOLD}Lenguaje:{Colors.ENDC}    {selected_lang}")
+        if selected_db:
+            print(f"  {Colors.BOLD}Database:{Colors.ENDC}    {selected_db}")
         
-        if input(f"\n{Colors.YELLOW}¿Crear? (s/n): {Colors.ENDC}").lower() == 's':
+        print(f"\n  {Colors.BOLD}Skills ({len(skills)}):{Colors.ENDC}\n")
+        for s in sorted(skills):
+            print(f"    {Colors.GREEN}✓{Colors.ENDC} {s}")
+        
+        print()
+        if input(f"  {Colors.YELLOW}¿Crear workspace? (s/n): {Colors.ENDC}").lower() == 's':
             self.create_workspace(ans['name'], description=ans.get('desc', ''))
-            print(f"\n{Colors.YELLOW}Habilitando...{Colors.ENDC}\n")
+            print(f"\n{Colors.YELLOW}  Habilitando skills...{Colors.ENDC}\n")
             for s in skills:
                 self.enable_skill(ans['name'], s)
             print(f"\n{Colors.GREEN}{'═'*70}")
-            print(f"✅ '{ans['name']}' creado!")
+            print(f"  ✅ Workspace '{ans['name']}' creado con {len(skills)} skills!")
             print(f"{'═'*70}{Colors.ENDC}\n")
-            print(f"cd {self.workspaces_dir / ans['name']}")
+            print(f"  cd {self.workspaces_dir / ans['name']}")
+            print()
     
+    def _get_suggested_skills(self, project_type, language, database):
+        """Genera sugerencias de skills basadas en las selecciones del wizard"""
+        suggestions = {}
+        
+        # ── Skills de Arquitectura y Calidad ──
+        arch_quality = []
+        if project_type in ["API Backend", "Full-Stack", "Microservicios"]:
+            arch_quality.extend(["architecture", "architecture-patterns", "architecture-decision-records",
+                                 "software-architecture", "microservices-patterns", "code-review-excellence"])
+        elif project_type in ["Web Frontend", "Web App (SPA)"]:
+            arch_quality.extend(["frontend-design", "web-design-guidelines", "ui-ux-designer"])
+        elif project_type == "Mobile App":
+            arch_quality.extend(["app-store-optimization", "mobile-developer"])
+        
+        if project_type:
+            arch_quality.extend(["clean-code", "code-reviewer", "architect-review"])
+        arch_quality = list(dict.fromkeys(arch_quality))  # deduplicate preserving order
+        if arch_quality:
+            suggestions["🏗️  Arquitectura y Calidad"] = arch_quality
+        
+        # ── Skills de Testing ──
+        testing = []
+        if language == "Python":
+            testing.extend(["python-testing-patterns", "tdd-workflow"])
+        elif language == "JavaScript/TypeScript":
+            testing.extend(["javascript-testing-patterns", "playwright-skill", "e2e-testing-patterns"])
+        elif language == "Go":
+            testing.extend(["tdd-workflow", "e2e-testing-patterns"])
+        elif language == "Dart/Flutter":
+            testing.extend(["tdd-workflow", "test-driven-development"])
+        elif language == "Rust":
+            testing.extend(["tdd-workflow"])
+        elif language == "Java/Kotlin":
+            testing.extend(["tdd-workflow", "e2e-testing-patterns"])
+        
+        if project_type in ["Web Frontend", "Full-Stack", "Web App (SPA)"]:
+            if "playwright-skill" not in testing:
+                testing.append("playwright-skill")
+            if "e2e-testing-patterns" not in testing:
+                testing.append("e2e-testing-patterns")
+        
+        testing.extend(["test-automator", "systematic-debugging"])
+        testing = list(dict.fromkeys(testing))
+        if testing:
+            suggestions["🧪 Testing y Debugging"] = testing
+        
+        # ── Skills de DevOps/Deploy ──
+        devops = []
+        if project_type in ["API Backend", "Full-Stack", "Microservicios", "Web App (SPA)"]:
+            devops.extend(["docker-expert", "github-actions-templates", "deployment-engineer"])
+        if project_type == "Microservicios":
+            devops.extend(["kubernetes-architect", "k8s-manifest-generator", "terraform-specialist"])
+        if project_type in ["Web Frontend", "Web App (SPA)"]:
+            devops.extend(["vercel-deployment"])
+        devops.extend(["cicd-automation-workflow-automate"])
+        devops = list(dict.fromkeys(devops))
+        if devops:
+            suggestions["🚀 DevOps y Deploy"] = devops
+        
+        # ── Skills de Seguridad ──
+        security = []
+        if project_type in ["API Backend", "Full-Stack", "Microservicios"]:
+            security.extend(["api-security-best-practices", "backend-security-coder", 
+                             "security-auditor", "auth-implementation-patterns"])
+        elif project_type in ["Web Frontend", "Web App (SPA)"]:
+            security.extend(["frontend-security-coder", "top-web-vulnerabilities"])
+        elif project_type == "Mobile App":
+            security.extend(["mobile-security-coder"])
+        if security:
+            suggestions["🔒 Seguridad"] = security
+        
+        # ── Skills de AI/ML ──
+        if project_type in ["AI/ML", "Data Engineering"]:
+            ai_skills = ["prompt-engineering", "llm-app-patterns", "rag-implementation",
+                         "langchain-architecture", "langgraph", "ai-engineer",
+                         "embedding-strategies", "vector-database-engineer"]
+            suggestions["🤖 AI/ML"] = ai_skills
+        
+        # ── Skills de SEO/Marketing ──
+        if project_type in ["SEO/Marketing", "Web Frontend", "Full-Stack", "Web App (SPA)"]:
+            seo = ["seo-fundamentals", "seo-content-writer", "seo-meta-optimizer",
+                   "analytics-tracking", "seo-structure-architect"]
+            if project_type == "SEO/Marketing":
+                seo.extend(["seo-keyword-strategist", "seo-audit", "programmatic-seo",
+                            "content-marketer", "social-content"])
+            suggestions["📈 SEO y Marketing"] = seo
+        
+        # ── Skills de Automatización ──
+        if project_type in ["CLI/Automatización", "Data Engineering"]:
+            auto = ["workflow-automation", "n8n-mcp-tools-expert", "zapier-make-patterns"]
+            if language == "Python":
+                auto.extend(["async-python-patterns", "python-performance-optimization"])
+            suggestions["⚡ Automatización"] = auto
+        
+        # ── Skills de Game Dev ──
+        if project_type == "Game Dev":
+            game = ["unity-developer", "unity-ecs-patterns", "unreal-engine-cpp-pro",
+                    "godot-gdscript-patterns", "threejs-skills", "game-development"]
+            suggestions["🎮 Game Dev"] = game
+        
+        # ── Skills de Blockchain ──
+        if project_type == "Blockchain/Web3":
+            web3 = ["blockchain-developer", "solidity-security", "nft-standards",
+                    "defi-protocol-templates", "web3-testing"]
+            suggestions["⛓️  Blockchain/Web3"] = web3
+        
+        # ── Skills de Database avanzados ──
+        if database:
+            db_advanced = []
+            if database in ["PostgreSQL", "Supabase", "Neon Postgres"]:
+                db_advanced.extend(["database-optimizer", "sql-optimization-patterns",
+                                    "database-migration", "database-architect"])
+            elif database == "MongoDB/NoSQL":
+                db_advanced.extend(["nosql-expert", "database-architect"])
+            elif database == "Redis":
+                db_advanced.extend(["database-architect"])
+            if database == "Supabase":
+                db_advanced.extend(["supabase-automation", "nextjs-supabase-auth"])
+            if db_advanced:
+                suggestions["🗃️  Database Avanzado"] = db_advanced
+        
+        # ── Skills de Documentación ──
+        docs = ["api-documentation-generator", "readme"]
+        if project_type in ["API Backend", "Full-Stack", "Microservicios"]:
+            docs.append("openapi-spec-generation")
+        suggestions["📝 Documentación"] = docs
+        
+        return suggestions
+
     def _load_skill_database(self):
         return {
             "languages": {
-                "Go": ["api-patterns", "backend-patterns", "clean-code", "testing-patterns"],
-                "Python": ["python-patterns", "api-patterns", "testing-patterns"],
-                "JavaScript/TypeScript": ["nodejs-best-practices", "typescript-expert", "clean-code"],
-                "Dart/Flutter": ["flutter-supabase-architect", "mobile-design", "testing-patterns"],
+                "Python": ["python-patterns", "python-pro", "api-patterns", "testing-patterns"],
+                "JavaScript/TypeScript": ["nodejs-best-practices", "typescript-expert", "typescript-pro", "javascript-pro", "clean-code"],
+                "Go": ["golang-pro", "go-concurrency-patterns", "api-patterns", "clean-code", "testing-patterns"],
+                "Dart/Flutter": ["flutter-expert", "mobile-design", "testing-patterns"],
+                "Rust": ["rust-pro", "rust-async-patterns", "clean-code", "testing-patterns"],
+                "Java/Kotlin": ["java-pro", "api-patterns", "clean-code", "testing-patterns"],
+                "C#/.NET": ["csharp-pro", "dotnet-backend", "dotnet-backend-patterns", "clean-code", "testing-patterns"],
+                "C/C++": ["c-pro", "cpp-pro", "clean-code", "testing-patterns"],
+                "Swift/SwiftUI": ["swiftui-expert-skill", "ios-developer", "mobile-design", "testing-patterns"],
+                "Ruby": ["ruby-pro", "api-patterns", "clean-code", "testing-patterns"],
+                "PHP": ["php-pro", "laravel-expert", "api-patterns", "testing-patterns"],
+                "Elixir": ["elixir-pro", "api-patterns", "clean-code", "testing-patterns"],
+                "Scala": ["scala-pro", "api-patterns", "clean-code", "testing-patterns"],
+                "Julia": ["julia-pro", "clean-code", "testing-patterns"],
+                "Haskell": ["haskell-pro", "clean-code", "testing-patterns"],
             },
             "project_types": {
-                "API Backend": ["api-patterns", "backend-patterns", "api-security-best-practices", "testing-patterns"],
-                "Web Frontend": ["frontend-design", "react-patterns", "tailwind-patterns", "testing-patterns"],
-                "Full-Stack": ["frontend-design", "backend-patterns", "api-patterns", "testing-patterns"],
-                "Mobile App": ["mobile-design", "flutter-supabase-architect", "testing-patterns"],
+                "API Backend": ["api-patterns", "api-design-principles", "backend-architect", "api-security-best-practices", "testing-patterns"],
+                "Web Frontend": ["frontend-design", "frontend-developer", "react-patterns", "tailwind-patterns", "web-design-guidelines", "testing-patterns"],
+                "Full-Stack": ["frontend-design", "backend-architect", "api-patterns", "senior-fullstack", "testing-patterns"],
+                "Web App (SPA)": ["frontend-design", "react-patterns", "react-best-practices", "react-state-management", "tailwind-patterns", "testing-patterns"],
+                "Mobile App": ["mobile-design", "mobile-developer", "flutter-expert", "testing-patterns"],
+                "CLI/Automatización": ["workflow-automation", "bash-pro", "clean-code", "testing-patterns"],
+                "Microservicios": ["microservices-patterns", "api-patterns", "docker-expert", "kubernetes-architect", "testing-patterns"],
+                "AI/ML": ["ai-engineer", "llm-app-patterns", "prompt-engineering", "rag-implementation", "testing-patterns"],
+                "Data Engineering": ["data-engineer", "database-design", "database-architect", "sql-pro", "testing-patterns"],
+                "DevOps/Infra": ["docker-expert", "kubernetes-architect", "terraform-specialist", "cloud-architect", "github-actions-templates"],
+                "Game Dev": ["game-development", "unity-developer", "threejs-skills", "testing-patterns"],
+                "SEO/Marketing": ["seo-fundamentals", "seo-content-writer", "analytics-tracking", "programmatic-seo", "content-marketer"],
+                "Security/Pentesting": ["security-auditor", "pentest-checklist", "ethical-hacking-methodology", "vulnerability-scanner", "top-web-vulnerabilities"],
+                "Blockchain/Web3": ["blockchain-developer", "solidity-security", "web3-testing", "nft-standards"],
             },
             "databases": {
-                "PostgreSQL": ["database-design", "postgresql-patterns"],
-                "MongoDB": ["mongodb-patterns"],
-                "Google Sheets": ["api-patterns", "clean-code"],
-                "Supabase": ["flutter-supabase-architect", "database-design"],
+                "PostgreSQL": ["database-design", "postgres-best-practices", "postgresql", "sql-optimization-patterns"],
+                "Supabase": ["supabase-automation", "database-design", "nextjs-supabase-auth"],
+                "MongoDB/NoSQL": ["nosql-expert", "database-design"],
+                "MySQL": ["database-design", "sql-pro", "sql-optimization-patterns"],
+                "SQLite": ["database-design", "sql-pro"],
+                "Redis": ["database-design"],
+                "Firebase": ["firebase", "database-design"],
+                "Neon Postgres": ["neon-postgres", "database-design", "postgres-best-practices", "using-neon"],
+                "Google Sheets": ["api-patterns", "googlesheets-automation", "clean-code"],
+                "Elasticsearch": ["database-design", "database-architect"],
+                "DynamoDB": ["aws-skills", "database-design", "nosql-expert"],
             },
             "essential": ["clean-code", "testing-patterns", "git-pushing"]
         }

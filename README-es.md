@@ -58,11 +58,25 @@ El flujo más recomendado es utilizar el asistente interactivo:
 wsm wizard
 ```
 
-El wizard te guiará para definir:
-1. El **nombre** y una **descripción** de contexto breve.
-2. El **tipo de proyecto** (API Backend, Web Frontend, Full-Stack, Mobile App).
-3. El **lenguaje principal** (Python, Go, JS/TS, Dart/Flutter).
-4. La **base de datos** (PostgreSQL, MongoDB, Supabase, Google Sheets).
+El wizard ha sido completamente rediseñado y te guiará en 5 pasos para definir tu entorno:
+
+1. El **Nombre y Descripción** del workspace.
+2. El **Tipo de Proyecto** (14 opciones detalladas):
+    * Desde clásicos como **API Backend**, **Web Frontend**, **Mobile App**, hasta nuevos flujos como **Microservicios**, **AI/ML**, **Data Engineering**, **DevOps/Infra**, **Game Dev**, **SEO/Marketing**, **Security/Pentesting** y **Blockchain/Web3**.
+3. El **Lenguaje Principal** (15 opciones):
+    * Python, JavaScript/TypeScript, Go, Dart/Flutter, Rust, Java/Kotlin, C#/.NET, C/C++, Swift/SwiftUI, Ruby, PHP, Elixir, Scala, Julia o Haskell.
+4. La **Base de Datos** (11 opciones):
+    * PostgreSQL, Supabase, MongoDB/NoSQL, MySQL, SQLite, Redis, Firebase, Neon Postgres, Google Sheets, Elasticsearch o DynamoDB.
+5. **Recomendación Inteligente de Skills (Selección Múltiple)**:
+    * Basado en lo que hayas seleccionado en los pasos anteriores, el wizard te sugerirá categorías altamente relevantes para inyectar a tu proyecto.
+    * *Ejemplos de sugerencias dinámicas:*
+      * **🏗️ Arquitectura y Calidad:** [`architecture`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/architecture), [`microservices-patterns`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/microservices-patterns), [`clean-code`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/clean-code)...
+      * **🧪 Testing y Debugging:** [`tdd-workflow`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/tdd-workflow), [`playwright-skill`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/playwright-skill)...
+      * **🚀 DevOps y Deploy:** [`docker-expert`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/docker-expert), [`github-actions-templates`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/github-actions-templates)...
+      * **🔒 Seguridad:** [`api-security-best-practices`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/api-security-best-practices)...
+      * **🤖 AI/ML:** [`prompt-engineering`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/prompt-engineering), [`rag-implementation`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/rag-implementation)...
+      * **📈 SEO y Marketing:** [`seo-fundamentals`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/seo-fundamentals), [`analytics-tracking`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/analytics-tracking)...
+      * **⚡ Automatización:** [`workflow-automation`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/workflow-automation), [`n8n-mcp-tools-expert`](https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/n8n-mcp-tools-expert)...
 
 ---
 
