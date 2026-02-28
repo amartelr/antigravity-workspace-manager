@@ -46,7 +46,20 @@ class Colors:
 # ============================================================================
 
 def detect_project_root() -> Path:
-    """Detecta la raíz del proyecto automáticamente"""
+    """Detecta la raíz del proyecto automáticamente priorizando el CWD"""
+    # 1. Intentar desde el directorio de trabajo actual (CWD)
+    # Esto permite que 'wsm' funcione como herramienta global instalada en otro lugar
+    try:
+        cwd = Path.cwd()
+        for current in [cwd] + list(cwd.parents)[:5]:
+            if (current / ".agent").exists() or (current / "workspaces").exists():
+                return current
+            if current.name == "workspaces":
+                return current.parent
+    except:
+        pass
+
+    # 2. Fallback al directorio del script (comportamiento original)
     current = Path(__file__).resolve().parent
     
     # Caso 1: Ya estamos en la raíz
