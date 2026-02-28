@@ -159,17 +159,12 @@ class WorkspaceManager:
         print(f"{Colors.BLUE}🏗️  Creando: {name}{Colors.ENDC}")
         
         path.mkdir(parents=True)
-        agent = path / ".agent"
+        agent = path / ".agents"
         agent.mkdir()
         
-        # Symlink
-        try:
-            link = agent / "skills"
-            rel = os.path.relpath(self.skills_dir, agent)
-            link.symlink_to(rel)
-            print(f"✅ Symlink: {rel}")
-        except:
-            print(f"{Colors.YELLOW}⚠️  Symlink error (Windows: ejecutar como admin){Colors.ENDC}")
+        # Crear directorio de skills (se llenará con symlinks por skill)
+        skills_link_dir = agent / "skills"
+        skills_link_dir.mkdir(exist_ok=True)
         
         # Config
         config = {
@@ -188,6 +183,9 @@ class WorkspaceManager:
         
         with open(path / "skill-config.json", 'w') as f:
             json.dump(config, f, indent=2)
+        
+        # Crear symlinks para los skills habilitados
+        self.sync_workspace_skills(name, quiet=True)
         
         # README
         script_rel = os.path.relpath(Path(__file__), path)
@@ -262,6 +260,9 @@ Confirma qué tienes activo.
         with open(cfg, 'w') as f:
             json.dump(c, f, indent=2)
         
+        # Crear symlink para el skill
+        self._create_skill_symlink(workspace, skill)
+        
         print(f"{Colors.GREEN}✅ Habilitado: {skill} en {workspace}{Colors.ENDC}")
         return True
     
@@ -282,6 +283,9 @@ Confirma qué tienes activo.
         c['enabled_skills'].remove(skill)
         with open(cfg, 'w') as f:
             json.dump(c, f, indent=2)
+        
+        # Eliminar symlink del skill
+        self._remove_skill_symlink(workspace, skill)
         
         print(f"{Colors.GREEN}✅ Deshabilitado: {skill} de {workspace}{Colors.ENDC}")
         return True
@@ -501,7 +505,7 @@ Confirma qué tienes activo.
             'build.gradle', 'pom.xml', 'Podfile', 'go.sum',
         }
         
-        skip_dirs = {'.git', '.agent', 'node_modules', 'vendor', '.venv',
+        skip_dirs = {'.git', '.agent', '.agents', 'node_modules', 'vendor', '.venv',
                      'venv', '__pycache__', '.dart_tool', 'build', 'dist',
                      '.idea', '.vscode', 'out_', '.DS_Store'}
         
@@ -1101,6 +1105,117 @@ Confirma qué tienes activo.
                     if d.is_dir() and (d / "SKILL.md").exists():
                         skills.add(d.name)
         return skills
+    
+    def _find_skill_path(self, skill_name: str) -> Optional[Path]:
+        """Busca un skill en las categorías del catálogo central"""
+        for cat in ['public', 'private', 'user']:
+            candidate = self.skills_dir / cat / skill_name
+            if candidate.is_dir() and (candidate / "SKILL.md").exists():
+                return candidate
+        # También buscar en skills/ directamente (estructura alternativa del repo)
+        candidate = self.skills_dir / "skills" / skill_name
+        if candidate.is_dir() and (candidate / "SKILL.md").exists():
+            return candidate
+        return None
+    
+    def _create_skill_symlink(self, workspace: str, skill: str):
+        """Crea un symlink para un skill específico en el workspace"""
+        ws_skills_dir = self.workspaces_dir / workspace / ".agents" / "skills"
+        ws_skills_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Si es un symlink legacy (apunta al directorio completo), eliminarlo
+        if ws_skills_dir.is_symlink():
+            ws_skills_dir.unlink()
+            ws_skills_dir.mkdir(parents=True, exist_ok=True)
+        
+        link = ws_skills_dir / skill
+        if link.exists() or link.is_symlink():
+            return  # Ya existe
+        
+        skill_path = self._find_skill_path(skill)
+        if skill_path:
+            try:
+                rel = os.path.relpath(skill_path, ws_skills_dir)
+                link.symlink_to(rel)
+            except Exception:
+                pass
+    
+    def _remove_skill_symlink(self, workspace: str, skill: str):
+        """Elimina el symlink de un skill del workspace"""
+        link = self.workspaces_dir / workspace / ".agents" / "skills" / skill
+        if link.is_symlink() or link.exists():
+            if link.is_symlink():
+                link.unlink()
+            elif link.is_dir():
+                shutil.rmtree(link)
+    
+    def sync_workspace_skills(self, workspace: str, quiet: bool = False):
+        """Reconstruye los symlinks de skills de un workspace basándose en skill-config.json"""
+        cfg_path = self.workspaces_dir / workspace / "skill-config.json"
+        if not cfg_path.exists():
+            if not quiet:
+                print(f"{Colors.RED}❌ Workspace no encontrado: {workspace}{Colors.ENDC}")
+            return
+        
+        with open(cfg_path) as f:
+            config = json.load(f)
+        
+        enabled = config.get('enabled_skills', [])
+        ws_skills_dir = self.workspaces_dir / workspace / ".agents" / "skills"
+        
+        # Eliminar symlink legacy si existe
+        if ws_skills_dir.is_symlink():
+            ws_skills_dir.unlink()
+        
+        # Limpiar directorio de skills
+        if ws_skills_dir.exists():
+            for item in ws_skills_dir.iterdir():
+                if item.is_symlink():
+                    item.unlink()
+                elif item.is_dir():
+                    shutil.rmtree(item)
+        
+        ws_skills_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Crear symlinks para cada skill habilitado
+        created = 0
+        not_found = []
+        for skill in enabled:
+            skill_path = self._find_skill_path(skill)
+            if skill_path:
+                link = ws_skills_dir / skill
+                try:
+                    rel = os.path.relpath(skill_path, ws_skills_dir)
+                    link.symlink_to(rel)
+                    created += 1
+                except Exception as e:
+                    if not quiet:
+                        print(f"  {Colors.RED}❌{Colors.ENDC} {skill}: {e}")
+            else:
+                not_found.append(skill)
+        
+        if not quiet:
+            print(f"\n{Colors.BOLD}🔗 Sync skills para '{workspace}':{Colors.ENDC}\n")
+            print(f"  {Colors.GREEN}✅ {created}/{len(enabled)} symlinks creados{Colors.ENDC}")
+            if not_found:
+                print(f"  {Colors.YELLOW}⚠️  No encontrados en catálogo:{Colors.ENDC}")
+                for s in not_found:
+                    print(f"    {Colors.RED}•{Colors.ENDC} {s}")
+            print()
+    
+    def sync_all_workspaces(self):
+        """Reconstruye symlinks de todos los workspaces"""
+        workspaces = self._get_workspaces()
+        if not workspaces:
+            print(f"{Colors.YELLOW}📭 No hay workspaces{Colors.ENDC}")
+            return
+        
+        print(f"\n{Colors.BOLD}🔄 Sincronizando skills de {len(workspaces)} workspaces...{Colors.ENDC}\n")
+        for ws in sorted(workspaces):
+            cfg = ws / "skill-config.json"
+            if cfg.exists():
+                self.sync_workspace_skills(ws.name)
+        print(f"{Colors.GREEN}✨ ¡Todos los workspaces sincronizados!{Colors.ENDC}\n")
 
 # ============================================================================
 # CLI
@@ -1149,6 +1264,9 @@ Funciona desde cualquier ubicación - detecta rutas automáticamente.
     sync = sub.add_parser('sync')
     sync.add_argument('--auto-fix', action='store_true')
     
+    ss = sub.add_parser('sync-skills')
+    ss.add_argument('workspace', nargs='?', help='Workspace específico (o todos si se omite)')
+    
     reco = sub.add_parser('reco-skills')
     reco.add_argument('workspace')
     
@@ -1188,6 +1306,11 @@ Funciona desde cualquier ubicación - detecta rutas automáticamente.
         m.sync_from_github(args.auto_fix)
     elif args.command == 'reco-skills':
         m.recommend_skills(args.workspace)
+    elif args.command == 'sync-skills':
+        if args.workspace:
+            m.sync_workspace_skills(args.workspace)
+        else:
+            m.sync_all_workspaces()
     elif args.command == 'show':
         m.show_skill_detail(args.skill, args.lang)
 
