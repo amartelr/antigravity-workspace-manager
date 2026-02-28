@@ -289,6 +289,231 @@ Confirma qué tienes activo.
             print(f"  {Colors.GREEN}✓{Colors.ENDC} {s}")
         print()
     
+    def recommend_skills(self, workspace: str):
+        """Recomienda skills basándose en el contenido del workspace"""
+        ws_path = self.workspaces_dir / workspace
+        cfg_path = ws_path / "skill-config.json"
+        if not cfg_path.exists():
+            print(f"{Colors.RED}❌ Workspace no encontrado: {workspace}{Colors.ENDC}")
+            return
+        
+        with open(cfg_path) as f:
+            config = json.load(f)
+        already_enabled = set(config.get('enabled_skills', []))
+        
+        os.system('clear' if os.name != 'nt' else 'cls')
+        print(f"{Colors.CYAN}{Colors.BOLD}{'═'*70}")
+        print(f"  🔍 RECOMENDACIÓN DE SKILLS — {workspace}")
+        print(f"{'═'*70}{Colors.ENDC}\n")
+        
+        print(f"{Colors.YELLOW}  Escaneando contenido del workspace...{Colors.ENDC}\n")
+        
+        # ── Escanear archivos del workspace ──
+        ext_map = {
+            '.py': 'Python', '.go': 'Go',
+            '.js': 'JavaScript/TypeScript', '.ts': 'JavaScript/TypeScript',
+            '.tsx': 'JavaScript/TypeScript', '.jsx': 'JavaScript/TypeScript',
+            '.dart': 'Dart/Flutter', '.rs': 'Rust',
+            '.java': 'Java/Kotlin', '.kt': 'Java/Kotlin',
+            '.cs': 'C#/.NET', '.c': 'C/C++', '.cpp': 'C/C++', '.h': 'C/C++',
+            '.swift': 'Swift/SwiftUI', '.rb': 'Ruby', '.php': 'PHP',
+            '.ex': 'Elixir', '.exs': 'Elixir', '.scala': 'Scala',
+            '.jl': 'Julia', '.hs': 'Haskell', '.sol': 'Blockchain/Web3',
+        }
+        
+        detected_langs = set()
+        detected_files = set()
+        file_contents_to_scan = []  # (path, content) para buscar dependencias
+        
+        manifest_files = {
+            'package.json', 'pubspec.yaml', 'go.mod', 'requirements.txt',
+            'pyproject.toml', 'Cargo.toml', 'Gemfile', 'composer.json',
+            'build.gradle', 'pom.xml', 'Podfile', 'go.sum',
+        }
+        
+        skip_dirs = {'.git', '.agent', 'node_modules', 'vendor', '.venv',
+                     'venv', '__pycache__', '.dart_tool', 'build', 'dist',
+                     '.idea', '.vscode', 'out_', '.DS_Store'}
+        
+        for root, dirs, files in os.walk(ws_path):
+            dirs[:] = [d for d in dirs if d not in skip_dirs and not d.startswith('out_')]
+            for fname in files:
+                fpath = Path(root) / fname
+                ext = fpath.suffix.lower()
+                
+                # Detectar lenguaje por extensión
+                if ext in ext_map:
+                    detected_langs.add(ext_map[ext])
+                
+                # Detectar archivos clave
+                detected_files.add(fname)
+                
+                # Leer manifiestos para dependencias
+                if fname in manifest_files:
+                    try:
+                        with open(fpath, 'r', errors='ignore') as f:
+                            file_contents_to_scan.append((fname, f.read().lower()))
+                    except:
+                        pass
+        
+        # ── Detectar tipo de proyecto ──
+        detected_type = None
+        if 'Dockerfile' in detected_files or 'docker-compose.yml' in detected_files or 'docker-compose.yaml' in detected_files:
+            if 'docker-compose.yml' in detected_files or 'docker-compose.yaml' in detected_files:
+                detected_type = 'Microservicios'
+            else:
+                detected_type = 'API Backend'
+        if 'pubspec.yaml' in detected_files:
+            detected_type = 'Mobile App'
+        if 'package.json' in detected_files and not detected_type:
+            # Revisar si es frontend o fullstack
+            for fname, content in file_contents_to_scan:
+                if fname == 'package.json':
+                    if any(fw in content for fw in ['react', 'vue', 'angular', 'svelte', 'next', 'nuxt']):
+                        if 'Dart/Flutter' in detected_langs or 'Python' in detected_langs or 'Go' in detected_langs:
+                            detected_type = 'Full-Stack'
+                        else:
+                            detected_type = 'Web Frontend'
+                    elif any(bk in content for bk in ['express', 'fastify', 'koa', 'nest', 'hono']):
+                        detected_type = 'API Backend'
+        if not detected_type:
+            if '.github' in detected_files or 'terraform' in detected_files:
+                detected_type = 'DevOps/Infra'
+            elif any(ext == '.sol' for ext in [Path(f).suffix for f in detected_files]):
+                detected_type = 'Blockchain/Web3'
+            elif 'Python' in detected_langs:
+                # Revisar si es AI/ML o CLI
+                for fname, content in file_contents_to_scan:
+                    if any(ml in content for ml in ['torch', 'tensorflow', 'sklearn', 'langchain', 'openai', 'transformers']):
+                        detected_type = 'AI/ML'
+                        break
+                if not detected_type:
+                    detected_type = 'CLI/Automatización'
+            elif 'Go' in detected_langs:
+                detected_type = 'API Backend'
+        
+        # ── Detectar base de datos ──
+        detected_db = None
+        db_patterns = {
+            'Supabase': ['supabase'],
+            'PostgreSQL': ['postgres', 'pgx', 'psycopg', 'pg ', 'postgresql'],
+            'MongoDB/NoSQL': ['mongodb', 'mongoose', 'mongoclient'],
+            'MySQL': ['mysql', 'mariadb'],
+            'SQLite': ['sqlite', 'sqlite3'],
+            'Redis': ['redis', 'ioredis'],
+            'Firebase': ['firebase', 'firestore'],
+            'Neon Postgres': ['neon', '@neondatabase'],
+            'Google Sheets': ['gspread', 'google-sheets', 'googleapis.com/auth/spreadsheets', 'sheets'],
+            'Elasticsearch': ['elasticsearch', 'elastic'],
+            'DynamoDB': ['dynamodb', 'aws-sdk'],
+        }
+        all_content = ' '.join(c for _, c in file_contents_to_scan)
+        for db_name, patterns in db_patterns.items():
+            if any(p in all_content for p in patterns):
+                detected_db = db_name
+                break
+        
+        # ── Mostrar hallazgos ──
+        primary_lang = None
+        if detected_langs:
+            # Elegir el lenguaje principal (el primero detectado más relevante)
+            lang_priority = ['Python', 'JavaScript/TypeScript', 'Go', 'Dart/Flutter', 'Rust',
+                             'Java/Kotlin', 'C#/.NET', 'Swift/SwiftUI', 'Ruby', 'PHP',
+                             'C/C++', 'Elixir', 'Scala', 'Julia', 'Haskell']
+            for lp in lang_priority:
+                if lp in detected_langs:
+                    primary_lang = lp
+                    break
+        
+        print(f"  {Colors.BOLD}Hallazgos:{Colors.ENDC}")
+        if primary_lang:
+            others = detected_langs - {primary_lang}
+            lang_str = primary_lang
+            if others:
+                lang_str += f" (+{', '.join(sorted(others))})"
+            print(f"    💻 Lenguaje:  {Colors.GREEN}{lang_str}{Colors.ENDC}")
+        if detected_type:
+            print(f"    📦 Tipo:      {Colors.GREEN}{detected_type}{Colors.ENDC}")
+        if detected_db:
+            print(f"    🗄️  Database:  {Colors.GREEN}{detected_db}{Colors.ENDC}")
+        if already_enabled:
+            print(f"    ✅ Ya activos: {Colors.CYAN}{len(already_enabled)} skills{Colors.ENDC}")
+        print()
+        
+        if not primary_lang and not detected_type:
+            print(f"  {Colors.YELLOW}⚠️  No se detectó suficiente contenido para recomendar skills.{Colors.ENDC}")
+            print(f"  {Colors.YELLOW}    Asegúrate de que el workspace tenga archivos fuente.{Colors.ENDC}\n")
+            return
+        
+        # ── Generar recomendaciones ──
+        suggested = self._get_suggested_skills(detected_type, primary_lang, detected_db)
+        
+        # Añadir skills base del lenguaje y tipo detectados
+        base_skills = set()
+        if primary_lang and primary_lang in self.skill_database['languages']:
+            base_skills.update(self.skill_database['languages'][primary_lang])
+        if detected_type and detected_type in self.skill_database['project_types']:
+            base_skills.update(self.skill_database['project_types'][detected_type])
+        if detected_db and detected_db in self.skill_database['databases']:
+            base_skills.update(self.skill_database['databases'][detected_db])
+        base_skills.update(self.skill_database['essential'])
+        
+        # Incluir skills base como categoría si hay alguno nuevo
+        base_new = [s for s in sorted(base_skills) if s not in already_enabled]
+        if base_new:
+            suggested = {"⚡ Skills Base (lenguaje/tipo/db)": base_new, **suggested}
+        
+        # Filtrar ya habilitados de todas las categorías
+        suggested = {cat: [s for s in slist if s not in already_enabled]
+                     for cat, slist in suggested.items()}
+        suggested = {cat: slist for cat, slist in suggested.items() if slist}
+        
+        if not suggested:
+            print(f"  {Colors.GREEN}✨ ¡Ya tienes todos los skills recomendados habilitados!{Colors.ENDC}\n")
+            return
+        
+        # ── Mostrar recomendaciones con selección múltiple ──
+        print(f"{Colors.BOLD}{'─'*50}")
+        print(f"  🧩 Recomendaciones ({sum(len(v) for v in suggested.values())} skills)")
+        print(f"{'─'*50}{Colors.ENDC}\n")
+        
+        flat_skills = []
+        for cat, slist in suggested.items():
+            print(f"  {Colors.BOLD}▸ {cat}:{Colors.ENDC}")
+            for s in slist:
+                flat_skills.append(s)
+                print(f"    {Colors.CYAN}{len(flat_skills):2}.{Colors.ENDC} {s}")
+            print()
+        
+        print(f"  {Colors.YELLOW}Introduce los números separados por coma (ej: 1,3,5)")
+        print(f"  o 'all' para todos, Enter para ninguno{Colors.ENDC}")
+        
+        try:
+            sel = input(f"\n{Colors.YELLOW}  → {Colors.ENDC}").strip()
+            if sel.lower() == 'all':
+                print(f"\n{Colors.YELLOW}  Habilitando todos...{Colors.ENDC}\n")
+                for s in flat_skills:
+                    self.enable_skill(workspace, s)
+                print(f"\n{Colors.GREEN}{'═'*70}")
+                print(f"  ✅ {len(flat_skills)} skills habilitados en '{workspace}'!")
+                print(f"{'═'*70}{Colors.ENDC}\n")
+            elif sel:
+                indices = [int(x.strip()) for x in sel.split(',') if x.strip()]
+                added = 0
+                print()
+                for idx in indices:
+                    if 1 <= idx <= len(flat_skills):
+                        self.enable_skill(workspace, flat_skills[idx-1])
+                        added += 1
+                if added:
+                    print(f"\n{Colors.GREEN}{'═'*70}")
+                    print(f"  ✅ {added} skills habilitados en '{workspace}'!")
+                    print(f"{'═'*70}{Colors.ENDC}\n")
+            else:
+                print(f"\n{Colors.CYAN}  Sin cambios.{Colors.ENDC}\n")
+        except:
+            print(f"\n{Colors.CYAN}  Sin cambios.{Colors.ENDC}\n")
+    
     def sync_from_github(self, auto_fix: bool = False):
         """Sincroniza desde GitHub"""
         print(f"\n{Colors.BLUE}🔄 Sincronizando...{Colors.ENDC}\n")
@@ -753,6 +978,9 @@ Funciona desde cualquier ubicación - detecta rutas automáticamente.
     sync = sub.add_parser('sync')
     sync.add_argument('--auto-fix', action='store_true')
     
+    reco = sub.add_parser('reco-skills')
+    reco.add_argument('workspace')
+    
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -783,6 +1011,8 @@ Funciona desde cualquier ubicación - detecta rutas automáticamente.
         m.disable_skill(args.workspace, args.skill)
     elif args.command == 'sync':
         m.sync_from_github(args.auto_fix)
+    elif args.command == 'reco-skills':
+        m.recommend_skills(args.workspace)
 
 if __name__ == '__main__':
     try:

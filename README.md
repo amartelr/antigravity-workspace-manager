@@ -92,6 +92,7 @@ The completely redesigned wizard will guide you through 5 steps to define your e
 | **View Project Skills** | `wsm list-skills project-name` |
 | **Enable Skill** | `wsm enable project-name skill-name` |
 | **Disable Skill** | `wsm disable project-name skill-name` |
+| **Recommend Skills**       | `wsm reco-skills project-name` |
 | **Sync and Repair Skills** | `wsm sync --auto-fix` |
 
 ---

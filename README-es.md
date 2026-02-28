@@ -92,6 +92,7 @@ El wizard ha sido completamente rediseñado y te guiará en 5 pasos para definir
 | **Ver Skills de un Proyecto** | `wsm list-skills nombre-proyecto` |
 | **Habilitar Skill** | `wsm enable nombre-proyecto nombre-skill` |
 | **Deshabilitar Skill** | `wsm disable nombre-proyecto nombre-skill` |
+| **Recomendar Skills** | `wsm reco-skills nombre-proyecto` |
 | **Sincronizar y Reparar Skills** | `wsm sync --auto-fix` |
 
 ---
