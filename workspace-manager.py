@@ -12,7 +12,7 @@ Soporta:
 
 Detecta automáticamente la raíz del proyecto y ajusta todas las rutas.
 
-Uso: python3 workspace-manager.py wizard
+Uso: wsm wizard
 
 Autor: Sistema de Gestión de Skills para Agentes IA
 Versión: 2.1 - Auto-detección de rutas
@@ -288,6 +288,163 @@ Confirma qué tienes activo.
         for s in sorted(skills):
             print(f"  {Colors.GREEN}✓{Colors.ENDC} {s}")
         print()
+    
+    def show_skill_detail(self, skill_name: str, lang: str = 'en'):
+        """Muestra el detalle completo de un skill del catálogo"""
+        # ── Buscar el skill en las categorías disponibles ──
+        skill_path = None
+        for cat in ['public', 'private', 'user']:
+            candidate = self.skills_dir / cat / skill_name
+            if candidate.is_dir() and (candidate / "SKILL.md").exists():
+                skill_path = candidate
+                break
+        
+        if not skill_path:
+            if lang == 'es':
+                print(f"{Colors.RED}❌ Skill no encontrado: {skill_name}{Colors.ENDC}")
+                print(f"{Colors.YELLOW}   Usa 'wsm list-skills' para ver el catálogo completo.{Colors.ENDC}")
+            else:
+                print(f"{Colors.RED}❌ Skill not found: {skill_name}{Colors.ENDC}")
+                print(f"{Colors.YELLOW}   Use 'wsm list-skills' to see the full catalog.{Colors.ENDC}")
+            return
+        
+        # ── Leer SKILL.md ──
+        with open(skill_path / "SKILL.md", 'r', encoding='utf-8') as f:
+            raw = f.read()
+        
+        # ── Parsear frontmatter YAML ──
+        fm_name = skill_name
+        fm_desc = ''
+        fm_risk = 'unknown'
+        fm_source = 'unknown'
+        body = raw
+        
+        if raw.startswith('---'):
+            parts = raw.split('---', 2)
+            if len(parts) >= 3:
+                fm_block = parts[1]
+                body = parts[2].strip()
+                for line in fm_block.strip().splitlines():
+                    if line.startswith('name:'):
+                        fm_name = line.split(':', 1)[1].strip().strip('"').strip("'")
+                    elif line.startswith('risk:'):
+                        fm_risk = line.split(':', 1)[1].strip().strip('"').strip("'")
+                    elif line.startswith('source:'):
+                        fm_source = line.split(':', 1)[1].strip().strip('"').strip("'")
+                    elif line.startswith('description:'):
+                        fm_desc = line.split(':', 1)[1].strip().strip('"').strip("'")
+        
+        # ── Enriquecer desde skills_index.json ──
+        index_category = ''
+        index_path = self.root_dir / "antigravity-awesome-skills" / "skills_index.json"
+        if index_path.exists():
+            try:
+                with open(index_path, 'r', encoding='utf-8') as f:
+                    index_data = json.load(f)
+                for entry in index_data:
+                    if entry.get('id') == skill_name or entry.get('name') == skill_name:
+                        if not fm_desc and entry.get('description'):
+                            fm_desc = entry['description']
+                        index_category = entry.get('category', '')
+                        if fm_source == 'unknown' and entry.get('source'):
+                            fm_source = entry['source']
+                        if fm_risk == 'unknown' and entry.get('risk'):
+                            fm_risk = entry['risk']
+                        break
+            except Exception:
+                pass
+        
+        # ── Construir la salida ──
+        github_url = f"https://github.com/sickn33/antigravity-awesome-skills/tree/main/skills/{skill_name}"
+        
+        lines = []
+        lines.append(f"{Colors.CYAN}{Colors.BOLD}{'═'*70}")
+        if lang == 'es':
+            lines.append(f"  📖 DETALLE DEL SKILL — {fm_name}")
+        else:
+            lines.append(f"  📖 SKILL DETAIL — {fm_name}")
+        lines.append(f"{'═'*70}{Colors.ENDC}")
+        lines.append('')
+        
+        # Metadata
+        if lang == 'es':
+            lines.append(f"  {Colors.BOLD}Nombre:{Colors.ENDC}      {fm_name}")
+            if fm_desc:
+                lines.append(f"  {Colors.BOLD}Descripción:{Colors.ENDC} {fm_desc}")
+            if index_category:
+                lines.append(f"  {Colors.BOLD}Categoría:{Colors.ENDC}  {index_category}")
+            lines.append(f"  {Colors.BOLD}Fuente:{Colors.ENDC}      {fm_source}")
+            lines.append(f"  {Colors.BOLD}Riesgo:{Colors.ENDC}      {fm_risk}")
+            lines.append(f"  {Colors.BOLD}GitHub:{Colors.ENDC}      {github_url}")
+        else:
+            lines.append(f"  {Colors.BOLD}Name:{Colors.ENDC}        {fm_name}")
+            if fm_desc:
+                lines.append(f"  {Colors.BOLD}Description:{Colors.ENDC} {fm_desc}")
+            if index_category:
+                lines.append(f"  {Colors.BOLD}Category:{Colors.ENDC}    {index_category}")
+            lines.append(f"  {Colors.BOLD}Source:{Colors.ENDC}      {fm_source}")
+            lines.append(f"  {Colors.BOLD}Risk:{Colors.ENDC}        {fm_risk}")
+            lines.append(f"  {Colors.BOLD}GitHub:{Colors.ENDC}      {github_url}")
+        
+        lines.append('')
+        lines.append(f"{Colors.CYAN}{'─'*70}{Colors.ENDC}")
+        lines.append('')
+        
+        # Body del SKILL.md (traducir encabezados si es español)
+        if lang == 'es':
+            translations = {
+                '## Use this skill when': '## Usa este skill cuando',
+                '## Do not use this skill when': '## No uses este skill cuando',
+                '## Instructions': '## Instrucciones',
+                '## Purpose': '## Propósito',
+                '## Capabilities': '## Capacidades',
+                '## Behavioral Traits': '## Comportamiento',
+                '## Knowledge Base': '## Base de Conocimiento',
+                '## Response Approach': '## Enfoque de Respuesta',
+                '## Example Interactions': '## Ejemplos de Uso',
+                '## Examples': '## Ejemplos',
+                '### Core': '### Núcleo',
+                '### Architecture Patterns': '### Patrones de Arquitectura',
+                '### Performance Optimization': '### Optimización de Rendimiento',
+                '### Testing Strategies': '### Estrategias de Testing',
+                '### Security & Compliance': '### Seguridad y Cumplimiento',
+                '### Advanced Features': '### Características Avanzadas',
+                '### Data Management & Persistence': '### Gestión de Datos y Persistencia',
+                '### DevOps & Deployment': '### DevOps y Despliegue',
+                '### Advanced UI & UX Implementation': '### Implementación Avanzada de UI/UX',
+                '### Platform Integration Mastery': '### Dominio de Integración de Plataformas',
+                '### State Management Excellence': '### Excelencia en Gestión de Estado',
+                '## When to use': '## Cuándo usar',
+                '## When not to use': '## Cuándo no usar',
+                '## Best Practices': '## Mejores Prácticas',
+                '## Key Concepts': '## Conceptos Clave',
+                '## Common Patterns': '## Patrones Comunes',
+                '## Troubleshooting': '## Resolución de Problemas',
+                '## References': '## Referencias',
+                '## Getting Started': '## Primeros Pasos',
+                '## Configuration': '## Configuración',
+                '## Usage': '## Uso',
+            }
+            for en_header, es_header in translations.items():
+                body = body.replace(en_header, es_header)
+        
+        lines.append(body)
+        lines.append('')
+        lines.append(f"{Colors.CYAN}{'═'*70}{Colors.ENDC}")
+        
+        output = '\n'.join(lines)
+        
+        # ── Paginación con less para scroll ──
+        try:
+            proc = subprocess.Popen(
+                ['less', '-R'],
+                stdin=subprocess.PIPE,
+                encoding='utf-8'
+            )
+            proc.communicate(input=output)
+        except (FileNotFoundError, BrokenPipeError):
+            # Fallback: imprimir directamente si less no está disponible
+            print(output)
     
     def recommend_skills(self, workspace: str):
         """Recomienda skills basándose en el contenido del workspace"""
@@ -938,15 +1095,16 @@ Confirma qué tienes activo.
 
 def main():
     parser = argparse.ArgumentParser(
+        prog='wsm',
         description="Workspace Manager",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Ejemplos:
-  python3 workspace-manager.py init
-  python3 workspace-manager.py wizard
-  python3 workspace-manager.py list
-  python3 workspace-manager.py enable ytmusic api-patterns
-  python3 workspace-manager.py sync --auto-fix
+  wsm init
+  wsm wizard
+  wsm list
+  wsm enable ytmusic api-patterns
+  wsm sync --auto-fix
 
 Funciona desde cualquier ubicación - detecta rutas automáticamente.
         """
@@ -981,6 +1139,10 @@ Funciona desde cualquier ubicación - detecta rutas automáticamente.
     reco = sub.add_parser('reco-skills')
     reco.add_argument('workspace')
     
+    show = sub.add_parser('show')
+    show.add_argument('skill')
+    show.add_argument('--lang', choices=['en', 'es'], default='en')
+    
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
@@ -1013,6 +1175,8 @@ Funciona desde cualquier ubicación - detecta rutas automáticamente.
         m.sync_from_github(args.auto_fix)
     elif args.command == 'reco-skills':
         m.recommend_skills(args.workspace)
+    elif args.command == 'show':
+        m.show_skill_detail(args.skill, args.lang)
 
 if __name__ == '__main__':
     try:

@@ -45,7 +45,7 @@ git clone https://github.com/amartelr/antigravity-workspace-manager.git
 cd antigravity-workspace-manager
 
 # 2. Initialize
-python3 workspace-manager.py init
+wsm init
 ```
 
 > 💡 **Portability Tip:** You can move the folder wherever you prefer (e.g., `~/MyProjects`). The script will auto-detect its new location.
@@ -93,6 +93,7 @@ The completely redesigned wizard will guide you through 5 steps to define your e
 | **Enable Skill** | `wsm enable project-name skill-name` |
 | **Disable Skill** | `wsm disable project-name skill-name` |
 | **Recommend Skills**       | `wsm reco-skills project-name` |
+| **View Skill Detail**      | `wsm show skill-name [--lang es]` |
 | **Sync and Repair Skills** | `wsm sync --auto-fix` |
 
 ---
@@ -162,7 +163,7 @@ wsm sync --auto-fix
 Thanks to the script auto-detecting paths independently of where it's invoked, you can automate cronjobs by passing the absolute path directly (no need for the classic preceding `cd`). For instance, automatic updates every Sunday at dawn:
 
 ```bash
-0 2 * * 0 python3 /real/path/to/your/antigravity-workspace-manager/workspace-manager.py sync --auto-fix
+0 2 * * 0 wsm sync --auto-fix
 ```
 
 ---
@@ -173,7 +174,7 @@ Thanks to the script auto-detecting paths independently of where it's invoked, y
   Console often requires extended privileges to handle deep directory mappings.
   > Resolve it by enabling the compatibility **Developer Mode**, and opening your command terminal with **Administrator Privileges**. WSL (Windows Subsystem for Linux) also prevents this issue 100%.
 * **Rejections Executing Listed Commands or Command not found:**
-  The python path wrapping must be local. Execute `python3 workspace-manager.py ...` (and remember the `chmod +x` if you prefer invoking it raw).
+  Make sure the `wsm` alias is configured. Run the installer again with `./install.sh` and restart your terminal. Alternatively, you can execute `python3 workspace-manager.py ...` directly.
 
 ---
 

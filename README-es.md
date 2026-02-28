@@ -45,7 +45,7 @@ git clone https://github.com/amartelr/antigravity-workspace-manager.git
 cd antigravity-workspace-manager
 
 # 2. Inicializa
-python3 workspace-manager.py init
+wsm init
 ```
 
 > 💡 **Tip de portabilidad:** Puedes mover la carpeta clonada a donde prefieras (ej. `~/MisProyectos`), el script autodetectará su nueva ubicación.
@@ -93,6 +93,7 @@ El wizard ha sido completamente rediseñado y te guiará en 5 pasos para definir
 | **Habilitar Skill** | `wsm enable nombre-proyecto nombre-skill` |
 | **Deshabilitar Skill** | `wsm disable nombre-proyecto nombre-skill` |
 | **Recomendar Skills** | `wsm reco-skills nombre-proyecto` |
+| **Ver Detalle de un Skill** | `wsm show nombre-skill [--lang es]` |
 | **Sincronizar y Reparar Skills** | `wsm sync --auto-fix` |
 
 ---
@@ -162,7 +163,7 @@ wsm sync --auto-fix
 Gracias a que el script auto-detecta rutas e independencias de dónde es invocado, puedes automatizar cronjobs pasándole la ruta absoluta directamente (sin necesidad del clásico `cd` previo). Por ejemplo, actualizaciones automáticas cada domingo de madrugada:
 
 ```bash
-0 2 * * 0 python3 /ruta/real/a/tu/antigravity-workspace-manager/workspace-manager.py sync --auto-fix
+0 2 * * 0 wsm sync --auto-fix
 ```
 
 ---
@@ -173,7 +174,7 @@ Gracias a que el script auto-detecta rutas e independencias de dónde es invocad
   A menudo la consola requiere privilegios amplios para manejar mapeos de directorio profundos.
   > Resuélvelo activando el modo de compatibilidad **Modo Desarrollador**, y abre tu terminal o de comandos con **Permisos de Administrador**. WSL (Windows Subsystem for Linux) también evita el problema al 100%.
 * **Rechazos Ejecutando Comando Listados o Command not found:**
-  La envoltura del path python debe ser local. Ejecuta `python3 workspace-manager.py ...` (y recuerda el `chmod +x` si prefieres invocarlo crudo).
+  Asegúrate de que el alias `wsm` esté configurado. Ejecuta el instalador de nuevo con `./install.sh` y reinicia tu terminal. Alternativamente, puedes ejecutar `python3 workspace-manager.py ...` directamente.
 
 ---
 
